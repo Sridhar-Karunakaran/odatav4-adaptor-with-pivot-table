@@ -133,11 +133,11 @@ The application is split into two processes that communicate over HTTP using the
 │  ┌────────────────────────────┐  │         │                                      │
 │  │  PivotViewComponent        │  │         │  ┌──────────────────────────────┐    │
 │  │  (Syncfusion EJ2)          │  │         │  │ PivotController : ODataCtrl  │    │
-│  └─────────────┬──────────────┘  │         │  │  • GET    /odata/Pivot      │    │
-│                │                 │         │  │  • GET    /odata/Pivot({k}) │    │
-│  ┌─────────────▼──────────────┐  │  HTTP   │  │  • POST   /odata/Pivot      │    │
-│  │  DataManager               │──┼────────▶│  │  • PATCH  /odata/Pivot({k}) │    │
-│  │  url: /odata/Pivot         │  │  OData  │  │  • DELETE /odata/Pivot({k}) │    │
+│  └─────────────┬──────────────┘  │         │  │  • GET    /odata/Orders      │    │
+│                │                 │         │  │  • GET    /odata/Orders({k}) │    │
+│  ┌─────────────▼──────────────┐  │  HTTP   │  │  • POST   /odata/Orders      │    │
+│  │  DataManager               │──┼────────▶│  │  • PATCH  /odata/Orders({k}) │    │
+│  │  url: /odata/Orders         │  │  OData  │  │  • DELETE /odata/Orders({k}) │    │
 │  │  adaptor: ODataV4Adaptor   │  │   V4    │  └────────────┬─────────────────┘    │
 │  └────────────────────────────┘  │         │               │                      │
 │                                  │         │  ┌────────────▼─────────────────┐    │
@@ -150,7 +150,7 @@ The application is split into two processes that communicate over HTTP using the
 
 **Step-by-step request flow (initial load):**
 
-1. The React `DataManager` issues `GET https://localhost:7181/odata/Pivot` to the backend.
+1. The React `DataManager` issues `GET https://localhost:7181/odata/Orders` to the backend.
 2. The request passes through the OData middleware registered in `Program.cs`.
 3. `PivotController.Get()` returns `OrdersDetails.GetAllRecords().AsQueryable()` decorated with `[EnableQuery]`.
 4. ASP.NET Core OData serializes the data into the OData-compliant envelope:
@@ -166,10 +166,10 @@ The application is split into two processes that communicate over HTTP using the
 
 | User action              | HTTP verb | URL template                  | Controller method            |
 | ------------------------ | --------- | ----------------------------- | ---------------------------- |
-| Double-click pivot cell  | `GET`     | `/odata/Pivot?...`            | `Get()`                      |
-| Add new record           | `POST`    | `/odata/Pivot`                | `Post(addRecord)`            |
-| Edit existing record     | `PATCH`   | `/odata/Pivot({key})`         | `Patch(key, updatedOrder)`   |
-| Delete record            | `DELETE`  | `/odata/Pivot({key})`         | `Delete(key)`                |
+| Double-click pivot cell  | `GET`     | `/odata/Orders?...`            | `Get()`                      |
+| Add new record           | `POST`    | `/odata/Orders`                | `Post(addRecord)`            |
+| Edit existing record     | `PATCH`   | `/odata/Orders({key})`         | `Patch(key, updatedOrder)`   |
+| Delete record            | `DELETE`  | `/odata/Orders({key})`         | `Delete(key)`                |
 
 > 🔑 The `OrderID` field is marked as the primary key by the `[Key]` attribute on the model and by the `beginDrillThrough` event in `App.js`. The ODataV4Adaptor uses this key when generating URLs for `PATCH` and `DELETE`.
 
@@ -245,7 +245,7 @@ var builder = WebApplication.CreateBuilder(args);
 var modelBuilder = new ODataConventionModelBuilder();
 
 // Register the "Pivot" entity set with the OData model builder.
-// "Pivot" will be the name used in URLs (e.g., /odata/Pivot).
+// "Pivot" will be the name used in URLs (e.g., /odata/Orders).
 modelBuilder.EntitySet<OrdersDetails>("Pivot");
 
 builder.Services.AddMvc().AddNewtonsoftJson(options =>
@@ -437,7 +437,7 @@ import './App.css';
 function App() {
     // Configure DataManager with ODataV4Adaptor.
     const data = new DataManager({
-        url: 'https://localhost:7181/odata/Pivot',   // 👈 Update this if your backend uses a different port
+        url: 'https://localhost:7181/odata/Orders',   // 👈 Update this if your backend uses a different port
         adaptor: new ODataV4Adaptor(),
     });
 
@@ -512,7 +512,7 @@ The API starts on the URLs defined in `Properties/launchSettings.json`:
 
 **Verify it works:**
 
-- 🌐 Open `https://localhost:7181/odata/Pivot` in your browser.
+- 🌐 Open `https://localhost:7181/odata/Orders` in your browser.
 - ✅ You should see an OData-compliant JSON envelope:
   ```json
   {
@@ -541,7 +541,7 @@ You should see the Pivot Table populated with aggregated **EmployeeID** values, 
 
 1. Open the browser's **Developer Tools** (F12) → **Network** tab.
 2. Reload the page.
-3. You should see a `GET https://localhost:7181/odata/Pivot` request with status `200` and an OData response containing `value` and `@odata.count`.
+3. You should see a `GET https://localhost:7181/odata/Orders` request with status `200` and an OData response containing `value` and `@odata.count`.
 4. The Pivot Table renders the aggregated data automatically.
 
 ---
@@ -552,11 +552,11 @@ The Pivot Table supports full CRUD through its built-in **drill-through editing*
 
 | Step | Action                                                                                                  | Expected Network Request                                  |
 | ---- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| 1️⃣  | **Double-click** any pivot cell to open the drill-through grid showing underlying source records.       | `GET /odata/Pivot`                                        |
-| ➕ 2️⃣ | Click **Add**, fill in the new row fields, then click **Update**.                                       | `POST https://localhost:7181/odata/Pivot`                 |
-| ✏️ 3️⃣ | Click **Edit** on an existing row, change a field, then click **Update**.                                | `PATCH https://localhost:7181/odata/Pivot({key})`         |
-| 🗑️ 4️⃣ | Click **Delete** on a row to remove it.                                                                  | `DELETE https://localhost:7181/odata/Pivot({key})`        |
-| 🔁 5️⃣ | The Pivot Table automatically refreshes to display the updated aggregated data from the backend.        | New `GET /odata/Pivot`                                    |
+| 1️⃣  | **Double-click** any pivot cell to open the drill-through grid showing underlying source records.       | `GET /odata/Orders`                                        |
+| ➕ 2️⃣ | Click **Add**, fill in the new row fields, then click **Update**.                                       | `POST https://localhost:7181/odata/Orders`                 |
+| ✏️ 3️⃣ | Click **Edit** on an existing row, change a field, then click **Update**.                                | `PATCH https://localhost:7181/odata/Orders({key})`         |
+| 🗑️ 4️⃣ | Click **Delete** on a row to remove it.                                                                  | `DELETE https://localhost:7181/odata/Orders({key})`        |
+| 🔁 5️⃣ | The Pivot Table automatically refreshes to display the updated aggregated data from the backend.        | New `GET /odata/Orders`                                    |
 
 > 🔑 The `OrderID` column is automatically marked as the primary key inside the `beginDrillThrough` event, so `PATCH` and `DELETE` operations know which record to target. On the server, the same key is identified by the `[Key]` attribute on `OrdersDetails.OrderID`.
 
@@ -568,13 +568,13 @@ The ODataV4Adaptor emits the standard OData V4 query options below. All of them 
 
 | Query option | Purpose                              | Example                                                       |
 | ------------ | ------------------------------------ | ------------------------------------------------------------- |
-| `$filter`    | Filter records by a boolean expression| `/odata/Pivot?$filter=ShipCountry eq 'Denmark'`               |
-| `$orderby`   | Sort by one or more fields           | `/odata/Pivot?$orderby=OrderID desc`                          |
-| `$top`       | Take the first N records             | `/odata/Pivot?$top=5`                                         |
-| `$skip`      | Skip the first N records             | `/odata/Pivot?$skip=10&$top=10`                               |
-| `$count`     | Include total record count           | `/odata/Pivot?$count=true`                                    |
-| `$select`    | Project a subset of fields           | `/odata/Pivot?$select=OrderID,CustomerID`                     |
-| `$expand`    | Include related entities (not used in this sample) | `/odata/Pivot?$expand=...`                          |
+| `$filter`    | Filter records by a boolean expression| `/odata/Orders?$filter=ShipCountry eq 'Denmark'`               |
+| `$orderby`   | Sort by one or more fields           | `/odata/Orders?$orderby=OrderID desc`                          |
+| `$top`       | Take the first N records             | `/odata/Orders?$top=5`                                         |
+| `$skip`      | Skip the first N records             | `/odata/Orders?$skip=10&$top=10`                               |
+| `$count`     | Include total record count           | `/odata/Orders?$count=true`                                    |
+| `$select`    | Project a subset of fields           | `/odata/Orders?$select=OrderID,CustomerID`                     |
+| `$expand`    | Include related entities (not used in this sample) | `/odata/Orders?$expand=...`                          |
 
 **OData filter operators you can use with `$filter`:**
 
@@ -604,7 +604,7 @@ The ODataV4Adaptor emits the standard OData V4 query options below. All of them 
 | ❓ Issue                                | 🔍 Symptom                                                                                                       | ✅ Resolution                                                                                                                |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | 🚫 Empty Pivot Table                    | Pivot loads with no errors but no rows or values appear.                                                          | Ensure the API returns OData-compliant JSON (`{ value, @odata.count }`) and that field names match `dataSourceSettings`.     |
-| 404 Not Found                           | Network tab shows a 404 response when the Pivot Table loads.                                                     | Confirm the backend is running, the entity set is named `Pivot`, and the URL is `https://<port>/odata/Pivot`.                |
+| 404 Not Found                           | Network tab shows a 404 response when the Pivot Table loads.                                                     | Confirm the backend is running, the entity set is named `Pivot`, and the URL is `https://<port>/odata/Orders`.                |
 | 💥 500 Internal Server Error            | The Pivot Table fails and the browser shows a server error.                                                      | Check the terminal/Visual Studio output for stack traces. Common causes: missing `[EnableQuery]`, null body, or model issues. |
 | 🌐 CORS Blocked                         | Console shows `Access to XMLHttpRequest ... has been blocked by CORS policy`.                                    | Verify CORS is configured in `Program.cs` and `app.UseCors()` is called.                                                     |
 | 💾 CRUD operations not saving           | The edit dialog closes but changes are not reflected in the data.                                                | Confirm `OrderID` is the primary key (`[Key]` attribute + `isPrimaryKey` in `beginDrillThrough`).                            |
@@ -622,11 +622,11 @@ The backend exposes the following OData V4 endpoints through `PivotController`. 
 
 | Method   | Route                       | Purpose                                        | Request Body            | Response                          |
 | -------- | --------------------------- | ---------------------------------------------- | ----------------------- | --------------------------------- |
-| `GET`    | `/odata/Pivot`              | Retrieve all order records (with OData query)  | —                       | `{ value: [...], @odata.count }`  |
-| `GET`    | `/odata/Pivot({key})`       | Retrieve a single order by primary key         | —                       | Single `OrdersDetails` object     |
-| `POST`   | `/odata/Pivot`              | Insert a new order                             | `OrdersDetails` JSON    | `201 Created`                     |
-| `PATCH`  | `/odata/Pivot({key})`       | Update an existing order (matched by `OrderID`)| `OrdersDetails` JSON    | `200 OK`                          |
-| `DELETE` | `/odata/Pivot({key})`       | Remove an order by primary key                 | —                       | `204 No Content`                  |
+| `GET`    | `/odata/Orders`              | Retrieve all order records (with OData query)  | —                       | `{ value: [...], @odata.count }`  |
+| `GET`    | `/odata/Orders({key})`       | Retrieve a single order by primary key         | —                       | Single `OrdersDetails` object     |
+| `POST`   | `/odata/Orders`              | Insert a new order                             | `OrdersDetails` JSON    | `201 Created`                     |
+| `PATCH`  | `/odata/Orders({key})`       | Update an existing order (matched by `OrderID`)| `OrdersDetails` JSON    | `200 OK`                          |
+| `DELETE` | `/odata/Orders({key})`       | Remove an order by primary key                 | —                       | `204 No Content`                  |
 
 The `OrdersDetails` model exposes the following fields:
 

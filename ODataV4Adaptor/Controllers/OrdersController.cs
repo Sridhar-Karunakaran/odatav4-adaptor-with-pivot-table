@@ -7,7 +7,7 @@ namespace ODataV4Adaptor.Server.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class PivotController : ODataController
+    public class OrdersController : ODataController
     {
         // READ: Get all orders
         [HttpGet]

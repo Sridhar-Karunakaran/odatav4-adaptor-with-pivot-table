@@ -6,7 +6,7 @@ import './App.css';
 function App() {
     // Configure DataManager with UrlAdaptor.
     const data = new DataManager({
-        url: 'https://localhost:7181/odata/Pivot',
+        url: 'https://localhost:7181/odata/Orders',
         adaptor: new ODataV4Adaptor(),
     });
 
