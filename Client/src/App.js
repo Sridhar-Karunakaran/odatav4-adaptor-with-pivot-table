@@ -6,7 +6,7 @@ import './App.css';
 function App() {
     // Configure DataManager with UrlAdaptor.
     const data = new DataManager({
-        url: 'https://localhost:7181/odata/Orders',
+        url: 'http://localhost:5092/odata/Orders',
         adaptor: new ODataV4Adaptor(),
     });
 
@@ -20,9 +20,9 @@ function App() {
     const dataSourceSettings = {
         dataSource: data,
         expandAll: false,
-        rows: [{ name: 'ShipCountry' }],
+        rows: [{ name: 'CustomerID' }],
         columns: [{ name: 'OrderID' }],
-        values: [{ name: 'EmployeeID' }],
+        values: [{ name: 'Freight' }],
         formatSettings: [{ name: 'Freight', format: 'N0' }],
     };
     let pivotObj;

@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var modelBuilder = new ODataConventionModelBuilder();
 
 // Register the "Orders" entity set with the OData model builder
-modelBuilder.EntitySet<OrdersDetails>("Pivot");
+modelBuilder.EntitySet<OrdersDetails>("Orders");
 
 // Add services to the container.
 

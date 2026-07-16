@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
 using ODataV4Adaptor.Models;
 
-namespace ODataV4Adaptor.Server.Controllers
+namespace ODataV4Adaptor.Controllers
 {
     [Route("[controller]")]
     [ApiController]
@@ -65,7 +65,7 @@ namespace ODataV4Adaptor.Server.Controllers
             // Update properties (null-coalescing handles partial updates)
             existingOrder.CustomerID = updatedOrder.CustomerID ?? existingOrder.CustomerID;
             existingOrder.EmployeeID = updatedOrder.EmployeeID ?? existingOrder.EmployeeID;
-            existingOrder.ShipCountry = updatedOrder.ShipCountry ?? existingOrder.ShipCountry;
+            existingOrder.Freight = updatedOrder.Freight ?? existingOrder.Freight;
 
             return Ok(existingOrder);
         }
