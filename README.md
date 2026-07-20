@@ -44,7 +44,7 @@ This project demonstrates how to bind the **Syncfusion® React Pivot Table** to 
 
 | Component          | Technology                              | Purpose                                                          |
 | ------------------ | --------------------------------------- | ---------------------------------------------------------------- |
-| 🎨 Frontend        | React 19+ + Syncfusion® EJ2             | Render the interactive Pivot Table UI                            |
+| 🎨 Frontend        | React 19+ TypeScript (Vite) + Syncfusion® EJ2 | Render the interactive Pivot Table UI (`App.tsx`)         |
 | ⚙️ Backend         | ASP.NET Core 10.0 (OData 9.4)           | Serve OData V4 endpoints with `[EnableQuery]` support            |
 | 🔌 Adaptor         | `ODataV4Adaptor`                        | Bridge between Pivot Table and OData service over standard URLs  |
 | 📊 Sample Data     | In-memory `OrdersDetails` list          | Simulate order records for the Pivot Table                       |
@@ -56,12 +56,13 @@ This project demonstrates how to bind the **Syncfusion® React Pivot Table** to 
 ## ✨ Key Features
 
 - 📊 **Remote Data Binding** – Connects the Pivot Table to an OData V4 endpoint over HTTP.
+- 🧩 **TypeScript Client** – The React front-end (`App.tsx`, `main.tsx`) is fully typed; field names, edit settings, and event-handler arguments are validated at build time.
 - 🔄 **Full CRUD Support** – Insert, update, and delete records directly from the Pivot Table drill-through grid using `POST`, `PATCH`, and `DELETE` verbs.
 - 🎨 **Standard OData Querying** – All filter, sort, page, and aggregation logic is delegated to the server using `$filter`, `$orderby`, `$skip`, `$top`, and `$count` query options.
 - 🗂️ **Standardized Response Format** – Returns OData-compliant JSON with `value` and `@odata.count` for client-side parsing.
 - 🔑 **Primary Key Configuration** – Uses `OrderID` as the primary key (via the `[Key]` attribute) for unique record identification.
-- 🌐 **CORS-Enabled** – Preconfigured to allow cross-origin requests from the React dev server.
-- 🛡️ **Property Casing Preservation** – Uses `DefaultContractResolver` to keep PascalCase fields like `OrderID`, `ShipCountry`.
+- 🌐 **CORS-Enabled** – Preconfigured to allow cross-origin requests from the Vite dev server.
+- 🛡️ **Property Casing Preservation** – Uses `DefaultContractResolver` to keep PascalCase fields like `OrderID`, `CustomerID`.
 - ⚡ **Drill-Through Editing** – Double-click a pivot cell to add, edit, or delete underlying records in a pop-up grid.
 - 📦 **Ready-to-Run** – Clone, build, and start both projects — no database setup required (in-memory sample data).
 
@@ -73,8 +74,9 @@ Make sure the following software and packages are installed on your machine befo
 
 | Software / Package                              | Version      | Purpose                                                            |
 | ----------------------------------------------- | ------------ | ------------------------------------------------------------------ |
-| 🟢 Node.js                                      | 18.x or later| Runtime for the React development server                           |
+| 🟢 Node.js                                      | 18.x or later| Runtime for the Vite + React dev server                            |
 | ⚛️ React                                        | 19.x or later| Build the Pivot Table client                                       |
+| 🔷 TypeScript                                   | 5.x or later | Type-checks the `.tsx` client source (`App.tsx`, `main.tsx`)        |
 | 🟣 .NET SDK                                     | 10.0 or later| Build and run the ASP.NET Core OData V4 service                    |
 | 🧑‍💻 Visual Studio / VS Code                    | Latest       | Configure and run the backend API                                  |
 | 📦 `@syncfusion/ej2-react-pivotview`            | Latest       | React Pivot Table component                                        |
@@ -88,25 +90,27 @@ Make sure the following software and packages are installed on your machine befo
 
 ```
 odatav4-adaptor-with-pivot-table/
-├── 📁 Client/                              # React frontend (Pivot Table)
+├── 📁 Client/                              # React frontend (Pivot Table, TypeScript + Vite)
+│   ├── 📄 index.html                       # Vite HTML entry point
+│   ├── 📄 package.json                     # React dependencies & scripts
+│   ├── 📄 tsconfig.json                    # TypeScript project references
+│   ├── 📄 tsconfig.app.json                # TypeScript config for the app
+│   ├── 📄 tsconfig.node.json               # TypeScript config for Vite/node tooling
+│   ├── 📄 vite.config.ts                   # Vite configuration
+│   ├── 📄 .oxlintrc.json                   # OxLint configuration
 │   ├── 📁 public/
-│   │   ├── index.html
-│   │   ├── manifest.json
-│   │   └── robots.txt
-│   ├── 📁 src/
-│   │   ├── App.css                         # Component styles (Syncfusion Tailwind3 theme)
-│   │   ├── App.js                          # Pivot Table with ODataV4Adaptor configuration
-│   │   ├── App.test.js
-│   │   ├── datasource.js                   # Local pivot sample data (not used by the OData endpoint)
-│   │   ├── index.css
-│   │   ├── index.js                        # React entry point
-│   │   ├── reportWebVitals.js
-│   │   └── setupTests.js
-│   └── package.json                        # React dependencies & scripts
+│   │   └── vite.svg
+│   └── 📁 src/
+│       ├── 📄 App.css                      # Component styles (Syncfusion Tailwind3 theme)
+│       ├── 📄 App.tsx                      # Pivot Table with ODataV4Adaptor configuration (TypeScript)
+│       ├── 📄 index.css                    # Global styles
+│       ├── 📄 main.tsx                     # React entry point (renders <App/>)
+│       └── 📁 assets/
+│           └── react.svg
 │
 ├── 📁 ODataV4Adaptor/                      # ASP.NET Core OData V4 backend
 │   ├── 📁 Controllers/
-│   │   └── PivotController.cs              # OData endpoints: GET, GET(key), POST, PATCH(key), DELETE(key)
+│   │   └── OrdersController.cs             # OData endpoints: GET, GET(key), POST, PATCH(key), DELETE(key)
 │   ├── 📁 Models/
 │   │   └── OrdersDetails.cs                # Order data model + sample data
 │   ├── 📁 Properties/
@@ -117,7 +121,7 @@ odatav4-adaptor-with-pivot-table/
 │   ├── ODataV4Adaptor.http                 # Endpoint testing file
 │   └── Program.cs                          # OData + Newtonsoft.Json + CORS configuration
 │
-├── 📄 README.md                            # You are here
+└── 📄 README.md                            # You are here
 ```
 
 ---
@@ -128,19 +132,19 @@ The application is split into two processes that communicate over HTTP using the
 
 ```
 ┌──────────────────────────────────┐         ┌──────────────────────────────────────┐
-│  React Client (localhost:3000)   │         │  ASP.NET Core OData V4 Backend       │
-│                                  │         │  (https://localhost:7181)            │
+│  React Client (localhost:5173)  │         │  ASP.NET Core OData V4 Backend       │
+│  (Vite + TypeScript)             │         │  (http://localhost:5092)             │
 │  ┌────────────────────────────┐  │         │                                      │
 │  │  PivotViewComponent        │  │         │  ┌──────────────────────────────┐    │
-│  │  (Syncfusion EJ2)          │  │         │  │ PivotController : ODataCtrl  │    │
-│  └─────────────┬──────────────┘  │         │  │  • GET    /odata/Orders      │    │
-│                │                 │         │  │  • GET    /odata/Orders({k}) │    │
-│  ┌─────────────▼──────────────┐  │  HTTP   │  │  • POST   /odata/Orders      │    │
-│  │  DataManager               │──┼────────▶│  │  • PATCH  /odata/Orders({k}) │    │
-│  │  url: /odata/Orders         │  │  OData  │  │  • DELETE /odata/Orders({k}) │    │
-│  │  adaptor: ODataV4Adaptor   │  │   V4    │  └────────────┬─────────────────┘    │
-│  └────────────────────────────┘  │         │               │                      │
-│                                  │         │  ┌────────────▼─────────────────┐    │
+│  │  (Syncfusion EJ2)          │  │         │  │ OrdersController : ODataCtrl│    │
+│  │  src/App.tsx               │  │         │  │  • GET    /odata/Orders      │    │
+│  └─────────────┬──────────────┘  │         │  │  • GET    /odata/Orders({k}) │    │
+│                │                 │         │  │  • POST   /odata/Orders      │    │
+│  ┌─────────────▼──────────────┐  │  HTTP   │  │  • PATCH  /odata/Orders({k}) │    │
+│  │  DataManager               │──┼────────▶│  │  • DELETE /odata/Orders({k}) │    │
+│  │  url: /odata/Orders         │  │  OData  │  └────────────┬─────────────────┘    │
+│  │  adaptor: ODataV4Adaptor   │  │   V4    │               │                      │
+│  └────────────────────────────┘  │         │  ┌────────────▼─────────────────┐    │
 │                                  │         │  │ [EnableQuery]                │    │
 │                                  │         │  │ OrdersDetails.GetAllRecords()│    │
 │                                  │         │  │ (in-memory list)             │    │
@@ -150,14 +154,14 @@ The application is split into two processes that communicate over HTTP using the
 
 **Step-by-step request flow (initial load):**
 
-1. The React `DataManager` issues `GET https://localhost:7181/odata/Orders` to the backend.
+1. The React `DataManager` in `App.tsx` issues `GET http://localhost:5092/odata/Orders` to the backend.
 2. The request passes through the OData middleware registered in `Program.cs`.
-3. `PivotController.Get()` returns `OrdersDetails.GetAllRecords().AsQueryable()` decorated with `[EnableQuery]`.
+3. `OrdersController.Get()` returns `OrdersDetails.GetAllRecords().AsQueryable()` decorated with `[EnableQuery]`.
 4. ASP.NET Core OData serializes the data into the OData-compliant envelope:
    ```json
    {
      "value": [ { "OrderID": 10001, "...": "..." }, ... ],
-     "@odata.count": 2
+     "@odata.count": 5
    }
    ```
 5. The `ODataV4Adaptor` parses the response and feeds the records into the Pivot Table.
@@ -171,7 +175,7 @@ The application is split into two processes that communicate over HTTP using the
 | Edit existing record     | `PATCH`   | `/odata/Orders({key})`         | `Patch(key, updatedOrder)`   |
 | Delete record            | `DELETE`  | `/odata/Orders({key})`         | `Delete(key)`                |
 
-> 🔑 The `OrderID` field is marked as the primary key by the `[Key]` attribute on the model and by the `beginDrillThrough` event in `App.js`. The ODataV4Adaptor uses this key when generating URLs for `PATCH` and `DELETE`.
+> 🔑 The `OrderID` field is marked as the primary key by the `[Key]` attribute on the model and by the `beginDrillThrough` event in `App.tsx`. The ODataV4Adaptor uses this key when generating URLs for `PATCH` and `DELETE`.
 
 ---
 
@@ -219,7 +223,7 @@ Open `ODataV4Adaptor.csproj` and confirm the following package references are pr
 ```
 
 - **`Microsoft.AspNetCore.OData`** – Adds OData V4 query parsing, EDM model creation, and response formatting (`$filter`, `$orderby`, `$top`, `$skip`, `$count`).
-- **`Microsoft.AspNetCore.Mvc.NewtonsoftJson`** – Preserves PascalCase property names (`OrderID`, `ShipCountry`) during JSON serialization.
+- **`Microsoft.AspNetCore.Mvc.NewtonsoftJson`** – Preserves PascalCase property names (`OrderID`, `CustomerID`) during JSON serialization.
 
 If any are missing, add them with:
 
@@ -414,7 +418,7 @@ namespace ODataV4Adaptor.Server.Controllers
 
 ### 3. Frontend – React Pivot Table
 
-The React client lives in the `Client/` folder.
+The React client lives in the `Client/` folder. It is a **TypeScript + Vite** project built with `.tsx` files (`App.tsx`, `main.tsx`), so a TypeScript compiler (`typescript`) and the `@types/react` / `@types/react-dom` packages are listed under `devDependencies` in `package.json`. Vite serves the dev server and performs fast type-aware HMR.
 
 #### 3.1 Install npm dependencies
 
@@ -425,42 +429,45 @@ npm install
 
 #### 3.2 Verify the API URL
 
-Open `src/App.js` and ensure the `url` in the `DataManager` points to your backend port. The default in this repo is `https://localhost:7181` (HTTPS profile from `launchSettings.json`).
+Open `src/App.tsx` and ensure the `url` in the `DataManager` points to your backend port. The default in this repo is `http://localhost:5092` (HTTP profile from `launchSettings.json`). Update the value if your backend is exposed on a different port.
 
-```jsx
-// filepath: Client/src/App.js
+```tsx
+// filepath: Client/src/App.tsx
 import * as React from 'react';
-import { PivotViewComponent } from '@syncfusion/ej2-react-pivotview';
+import { PivotViewComponent, CellEditSettings } from '@syncfusion/ej2-react-pivotview';
 import { DataManager, ODataV4Adaptor } from '@syncfusion/ej2-data';
+import type { DataSourceSettingsModel } from '@syncfusion/ej2-pivotview/src/model/datasourcesettings-model';
+import type { BeginDrillThroughEventArgs } from '@syncfusion/ej2-pivotview';
 import './App.css';
 
-function App() {
+function App(): React.ReactElement {
     // Configure DataManager with ODataV4Adaptor.
-    const data = new DataManager({
-        url: 'https://localhost:7181/odata/Orders',   // 👈 Update this if your backend uses a different port
+    const data: DataManager = new DataManager({
+        url: 'http://localhost:5092/odata/Orders',   // 👈 Update this if your backend uses a different port
         adaptor: new ODataV4Adaptor(),
     });
 
-    const editSettings = {
+    // Enable editing functionality
+    const editSettings: CellEditSettings = {
         allowEditing: true,    // Enables the Edit button and allows users to modify existing records
         allowAdding: true,     // Enables the Add button and allows users to create new records
         allowDeleting: true,   // Enables the Delete button and allows users to remove records
         mode: 'Normal'         // Uses Normal mode (popup dialog) for editing; other options: 'Dialog', 'Batch'
     };
 
-    const dataSourceSettings = {
+    const dataSourceSettings: DataSourceSettingsModel = {
         dataSource: data,
         expandAll: false,
-        rows: [{ name: 'ShipCountry' }],
+        rows: [{ name: 'CustomerID' }],
         columns: [{ name: 'OrderID' }],
-        values: [{ name: 'EmployeeID' }],
+        values: [{ name: 'Freight' }],
         formatSettings: [{ name: 'Freight', format: 'N0' }],
     };
 
-    let pivotObj;
+    const pivotObj = React.useRef<PivotViewComponent>(null);
 
     // Configure beginDrillThrough event to set the primary key for CRUD operations
-    function beginDrillThrough(args) {
+    function beginDrillThrough(args: BeginDrillThroughEventArgs) {
         for (var i = 0; i < args.gridObj.columns.length; i++) {
             if (args.gridObj.columns[i].field === "OrderID") {
                 // Mark this column as the primary key so DataManager uses it for CRUD key handling
@@ -477,7 +484,7 @@ function App() {
     return (
         <div className='control-section' style={{ margin: 100 }}>
             <PivotViewComponent
-                ref={d => pivotObj = d}
+                ref={pivotObj}
                 id='PivotView'
                 height={350}
                 width={700}
@@ -491,6 +498,15 @@ function App() {
 
 export default App;
 ```
+
+> ℹ️ The `.tsx` version of the sample adds explicit type annotations:
+> - `data: DataManager` on the data source,
+> - `dataSourceSettings: DataSourceSettingsModel` (imported as a type from `@syncfusion/ej2-pivotview/src/model/datasourcesettings-model`),
+> - `editSettings: CellEditSettings` from `@syncfusion/ej2-react-pivotview`,
+> - `pivotObj = React.useRef<PivotViewComponent>(null)`,
+> - `args: BeginDrillThroughEventArgs` (imported as a type from `@syncfusion/ej2-pivotview`).
+>
+> These let the TypeScript compiler catch misconfigured field names, edit options, and event handler arguments at build time.
 
 ---
 
@@ -512,36 +528,39 @@ The API starts on the URLs defined in `Properties/launchSettings.json`:
 
 **Verify it works:**
 
-- 🌐 Open `https://localhost:7181/odata/Orders` in your browser.
+- 🌐 Open `http://localhost:5092/odata/Orders` in your browser.
 - ✅ You should see an OData-compliant JSON envelope:
   ```json
   {
     "value": [
-      { "OrderID": 10001, "CustomerID": "ALFKI", "EmployeeID": 1, "ShipCountry": "Denmark" },
-      { "OrderID": 10002, "CustomerID": "ANATR", "EmployeeID": 3, "ShipCountry": "Brazil" }
+      { "OrderID": 10001, "CustomerID": "ALFKI", "EmployeeID": 1, "Freight": 10.0 },
+      { "OrderID": 10002, "CustomerID": "ANATR", "EmployeeID": 3, "Freight": 20.0 },
+      { "OrderID": 10003, "CustomerID": "ANTON", "EmployeeID": 2, "Freight": 30.0 },
+      { "OrderID": 10004, "CustomerID": "BLONP", "EmployeeID": 4, "Freight": 40.0 },
+      { "OrderID": 10005, "CustomerID": "BOLID", "EmployeeID": 5, "Freight": 50.0 }
     ],
-    "@odata.count": 2
+    "@odata.count": 5
   }
   ```
 
-> 📝 Note the port number in the terminal output and update the `url` in `Client/src/App.js` if it differs from `https://localhost:7181`.
+> 📝 Note the port number in the terminal output and update the `url` in `Client/src/App.tsx` if it differs from `http://localhost:5092`.
 
 ### ▶️ Start the Frontend (Terminal 2)
 
 ```bash
 cd Client
-npm start
+npm run dev
 ```
 
-The React app opens at `http://localhost:3000` by default. 🎉
+Vite serves the React dev server on `http://localhost:5173` by default. The exact port is printed in the terminal output — paste it into the browser if Vite picks a different one. 🎉
 
-You should see the Pivot Table populated with aggregated **EmployeeID** values, grouped by **ShipCountry** (rows) and **OrderID** (columns).
+You should see the Pivot Table populated with aggregated **Freight** values, grouped by **CustomerID** (rows) and **OrderID** (columns).
 
 ### ✅ Verify in the Browser
 
 1. Open the browser's **Developer Tools** (F12) → **Network** tab.
 2. Reload the page.
-3. You should see a `GET https://localhost:7181/odata/Orders` request with status `200` and an OData response containing `value` and `@odata.count`.
+3. You should see a `GET http://localhost:5092/odata/Orders` request with status `200` and an OData response containing `value` and `@odata.count`.
 4. The Pivot Table renders the aggregated data automatically.
 
 ---
@@ -553,12 +572,12 @@ The Pivot Table supports full CRUD through its built-in **drill-through editing*
 | Step | Action                                                                                                  | Expected Network Request                                  |
 | ---- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
 | 1️⃣  | **Double-click** any pivot cell to open the drill-through grid showing underlying source records.       | `GET /odata/Orders`                                        |
-| ➕ 2️⃣ | Click **Add**, fill in the new row fields, then click **Update**.                                       | `POST https://localhost:7181/odata/Orders`                 |
-| ✏️ 3️⃣ | Click **Edit** on an existing row, change a field, then click **Update**.                                | `PATCH https://localhost:7181/odata/Orders({key})`         |
-| 🗑️ 4️⃣ | Click **Delete** on a row to remove it.                                                                  | `DELETE https://localhost:7181/odata/Orders({key})`        |
+| ➕ 2️⃣ | Click **Add**, fill in the new row fields, then click **Update**.                                       | `POST http://localhost:5092/odata/Orders`                 |
+| ✏️ 3️⃣ | Click **Edit** on an existing row, change a field, then click **Update**.                                | `PATCH http://localhost:5092/odata/Orders({key})`         |
+| 🗑️ 4️⃣ | Click **Delete** on a row to remove it.                                                                  | `DELETE http://localhost:5092/odata/Orders({key})`        |
 | 🔁 5️⃣ | The Pivot Table automatically refreshes to display the updated aggregated data from the backend.        | New `GET /odata/Orders`                                    |
 
-> 🔑 The `OrderID` column is automatically marked as the primary key inside the `beginDrillThrough` event, so `PATCH` and `DELETE` operations know which record to target. On the server, the same key is identified by the `[Key]` attribute on `OrdersDetails.OrderID`.
+> 🔑 The `OrderID` column is automatically marked as the primary key inside the `beginDrillThrough` event in `App.tsx`, so `PATCH` and `DELETE` operations know which record to target. On the server, the same key is identified by the `[Key]` attribute on `OrdersDetails.OrderID`.
 
 ---
 
@@ -604,12 +623,12 @@ The ODataV4Adaptor emits the standard OData V4 query options below. All of them 
 | ❓ Issue                                | 🔍 Symptom                                                                                                       | ✅ Resolution                                                                                                                |
 | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | 🚫 Empty Pivot Table                    | Pivot loads with no errors but no rows or values appear.                                                          | Ensure the API returns OData-compliant JSON (`{ value, @odata.count }`) and that field names match `dataSourceSettings`.     |
-| 404 Not Found                           | Network tab shows a 404 response when the Pivot Table loads.                                                     | Confirm the backend is running, the entity set is named `Pivot`, and the URL is `https://<port>/odata/Orders`.                |
+| 404 Not Found                           | Network tab shows a 404 response when the Pivot Table loads.                                                     | Confirm the backend is running, the entity set is named `Orders` (registered via `modelBuilder.EntitySet<OrdersDetails>("Orders")`), and the URL in `App.tsx` matches `http://localhost:5092/odata/Orders`.                |
 | 💥 500 Internal Server Error            | The Pivot Table fails and the browser shows a server error.                                                      | Check the terminal/Visual Studio output for stack traces. Common causes: missing `[EnableQuery]`, null body, or model issues. |
 | 🌐 CORS Blocked                         | Console shows `Access to XMLHttpRequest ... has been blocked by CORS policy`.                                    | Verify CORS is configured in `Program.cs` and `app.UseCors()` is called.                                                     |
 | 💾 CRUD operations not saving           | The edit dialog closes but changes are not reflected in the data.                                                | Confirm `OrderID` is the primary key (`[Key]` attribute + `isPrimaryKey` in `beginDrillThrough`).                            |
 | 🔤 Property casing mismatch             | Pivot appears empty or shows "field not found" even though the API returns data.                                 | Ensure `DefaultContractResolver` is registered in `Program.cs` so PascalCase fields like `OrderID` are preserved.             |
-| 📉 Only 2 records visible               | Pivot shows just the two seeded records from the loop bound `1..2`.                                              | Uncomment additional `order.Add(...)` lines in `OrdersDetails.GetAllRecords()` or increase the loop bound.                   |
+| 📉 Only 5 records visible               | Pivot shows just the five seeded records from the single-iteration loop.                                           | Increase the loop bound in `OrdersDetails.GetAllRecords()` (for example, change `for (int i = 1; i < 2; i++)` to `i < 9`) to seed more sample data for the Pivot Table.                   |
 | 🔒 SSL/TLS certificate error            | Console shows `net::ERR_CERT_AUTHORITY_INVALID` or browser warns about an untrusted certificate.                 | Run `dotnet dev-certs https --clean` then `dotnet dev-certs https --trust`. Or switch to the `http` profile (port `5092`).    |
 | ❌ Missing OData package                 | Build error: "The type or namespace name 'OData' could not be found".                                            | Install `Microsoft.AspNetCore.OData` 9.4.1 via NuGet.                                                                       |
 | 🔁 `[EnableQuery]` ignored              | The server returns the full set even when `$filter` is sent.                                                      | Ensure the `[EnableQuery]` attribute is applied to the controller method and the OData route is registered in `Program.cs`.   |
